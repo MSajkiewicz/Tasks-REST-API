@@ -1,30 +1,34 @@
 package com.crud.tasks.task;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import com.crud.tasks.databaseService.DbService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("task")
 public class TaskController {
+    @Autowired
+    private DbService dbService;
+    @Autowired
+    private TaskMapper taskMapper;
 
     @RequestMapping(method = RequestMethod.GET, value = "getTasks")
     public List<TaskDTO> getTasks() {
-        return new ArrayList<>();
+        return taskMapper.mapToTaskDTOList(dbService.getAllTasks());
     }
     @RequestMapping(method = RequestMethod.GET, value = "getTask")
-    public TaskDTO getTask(Long taskId) {
-        return new TaskDTO(1L, "test title", "test_content");
+    public TaskDTO getTask(@RequestParam Long taskId) {
+        return taskMapper.mapToTaskDTO(dbService.getTask(taskId));
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "deleteTask")
-    public void deleteTask(Long taskId) {
+    public void deleteTask(@RequestParam Long taskId) {
+        dbService.deleteTask(taskId);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "updateTask")
-    public TaskDTO updateTask(TaskDTO taskDto) {
-        return new TaskDTO(1L, "Edited test title", "Test content");
+    public TaskDTO updateTask(@RequestBody TaskDTO taskDto) {
+        return taskMapper.mapToTaskDTO(dbService.saveTask(taskMapper.mapToTask(taskDto)));
     }
     @RequestMapping(method = RequestMethod.POST, value = "createTask")
     public void createTask(TaskDTO taskDto) {
